@@ -21,6 +21,7 @@ public class LeaveTypeConfiguration : IEntityTypeConfiguration<LeaveType>
                 Name = "Vacation",
                 DefaultDays = 10,
                 DateCreated = DateTime.Now,
+                DateModified = DateTime.Now,
             }
         );
 
