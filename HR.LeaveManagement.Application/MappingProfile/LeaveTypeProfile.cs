@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace HR.LeaveManagement.Application.MappingProfile;
 
-internal class LeaveTypeProfile : Profile
+public class LeaveTypeProfile : Profile
 {
     public LeaveTypeProfile()
     {

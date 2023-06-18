@@ -9,7 +9,7 @@ using HR.LeaveManagement.Domain;
 
 namespace HR.LeaveManagement.Application.MappingProfile;
 
-internal class LeaveRequestProfile : Profile
+public class LeaveRequestProfile : Profile
 {
     public LeaveRequestProfile()
     {

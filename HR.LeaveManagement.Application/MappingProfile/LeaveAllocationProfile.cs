@@ -7,7 +7,7 @@ using HR.LeaveManagement.Domain;
 
 namespace HR.LeaveManagement.Application.MappingProfile;
 
-internal class LeaveAllocationProfile : Profile
+public class LeaveAllocationProfile : Profile
 {
     public LeaveAllocationProfile()
     {
