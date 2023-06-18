@@ -8,38 +8,37 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HR.LeaveManagement.Application.Features.LeaveType.Queries.GetAllLeaveTypes
+namespace HR.LeaveManagement.Application.Features.LeaveType.Queries.GetAllLeaveTypes;
+
+public class GetLeaveTypesQueryHandler : IRequestHandler<GetLeaveTypesQuery, List<LeaveTypeDto>>
 {
-    public class GetLeaveTypesQueryHandler : IRequestHandler<GetLeaveTypesQuery, List<LeaveTypeDto>>
+    private readonly IMapper _mapper;
+    private readonly ILeaveTypeRepository _leaveTypeRepository;
+    private readonly IAppLogger<GetLeaveTypesQueryHandler> _logger;
+
+    public GetLeaveTypesQueryHandler(
+        IMapper mapper,
+        ILeaveTypeRepository leaveTypeRepository,
+        IAppLogger<GetLeaveTypesQueryHandler> logger)
     {
-        private readonly IMapper _mapper;
-        private readonly ILeaveTypeRepository _leaveTypeRepository;
-        private readonly IAppLogger<GetLeaveTypesQueryHandler> _logger;
+        _mapper = mapper;
+        _leaveTypeRepository = leaveTypeRepository;
+        _logger = logger;
+    }
+    public async Task<List<LeaveTypeDto>> Handle(
+        GetLeaveTypesQuery request,
+        CancellationToken cancellationToken)
+    {
+        //Query the database
+        var leaveTypes = await _leaveTypeRepository.GetAsync();
 
-        public GetLeaveTypesQueryHandler(
-            IMapper mapper,
-            ILeaveTypeRepository leaveTypeRepository,
-            IAppLogger<GetLeaveTypesQueryHandler> logger)
-        {
-            _mapper = mapper;
-            _leaveTypeRepository = leaveTypeRepository;
-            _logger = logger;
-        }
-        public async Task<List<LeaveTypeDto>> Handle(
-            GetLeaveTypesQuery request,
-            CancellationToken cancellationToken)
-        {
-            //Query the database
-            var leaveTypes = await _leaveTypeRepository.GetAsync();
+        //Convert data objects to DTO objects
+        var data = _mapper.Map<List<LeaveTypeDto>>(leaveTypes);
 
-            //Convert data objects to DTO objects
-            var data = _mapper.Map<List<LeaveTypeDto>>(leaveTypes);
+        // log
+        _logger.LogInformation("Leave types were retrieved successfully");
 
-            // log
-            _logger.LogInformation("Leave types were retrieved successfully");
-
-            //return list of DTO objects
-            return data;
-        }
+        //return list of DTO objects
+        return data;
     }
 }

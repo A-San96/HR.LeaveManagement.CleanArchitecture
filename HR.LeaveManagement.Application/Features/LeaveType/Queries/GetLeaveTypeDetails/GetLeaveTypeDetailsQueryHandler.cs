@@ -9,37 +9,36 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HR.LeaveManagement.Application.Features.LeaveType.Queries.GetLeaveTypeDetails
+namespace HR.LeaveManagement.Application.Features.LeaveType.Queries.GetLeaveTypeDetails;
+
+public class GetLeaveTypeDetailsQueryHandler : IRequestHandler<GetLeaveTypeDetailsQuery,
+    LeaveTypeDetailsDto>
 {
-    internal class GetLeaveTypeDetailsQueryHandler : IRequestHandler<GetLeaveTypeDetailsQuery,
-        LeaveTypeDetailsDto>
+    private readonly IMapper _mapper;
+    private readonly ILeaveTypeRepository _leaveTypeRepository;
+
+    public GetLeaveTypeDetailsQueryHandler(IMapper mapper, ILeaveTypeRepository leaveTypeRepository)
     {
-        private readonly IMapper _mapper;
-        private readonly ILeaveTypeRepository _leaveTypeRepository;
+        _mapper = mapper;
+        _leaveTypeRepository = leaveTypeRepository;
+    }
+    public async Task<LeaveTypeDetailsDto> Handle(
+        GetLeaveTypeDetailsQuery request,
+        CancellationToken cancellationToken)
+    {
+        //Query the Database
+        var leaveType = await _leaveTypeRepository.GetByIdAsync(request.Id);
 
-        public GetLeaveTypeDetailsQueryHandler(IMapper mapper, ILeaveTypeRepository leaveTypeRepository)
+        // verify that record exist
+        if (leaveType is null)
         {
-            _mapper = mapper;
-            _leaveTypeRepository = leaveTypeRepository;
+            throw new NotFoundException(nameof(LeaveType), request.Id);
         }
-        public async Task<LeaveTypeDetailsDto> Handle(
-            GetLeaveTypeDetailsQuery request,
-            CancellationToken cancellationToken)
-        {
-            //Query the Database
-            var leaveType = await _leaveTypeRepository.GetByIdAsync(request.Id);
 
-            // verify that record exist
-            if (leaveType is null)
-            {
-                throw new NotFoundException(nameof(LeaveType), request.Id);
-            }
+        //Convert the data object to DTO object
+        var data = _mapper.Map<LeaveTypeDetailsDto>(leaveType);
 
-            //Convert the data object to DTO object
-            var data = _mapper.Map<LeaveTypeDetailsDto>(leaveType);
-
-            // return DTO object
-            return data;
-        }
+        // return DTO object
+        return data;
     }
 }
