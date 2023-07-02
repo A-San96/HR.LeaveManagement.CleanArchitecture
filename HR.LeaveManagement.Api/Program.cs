@@ -1,8 +1,12 @@
+using HealthChecks.UI.Client;
 using HR.LeaveManagement.Api.Middleware;
 using HR.LeaveManagement.Application;
+using HR.LeaveManagement.Identity;
 using HR.LeaveManagement.Infrastructure;
 using HR.LeaveManagement.Persistence;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,8 +14,15 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddPersistenceServices(builder.Configuration);
+builder.Services.AddIdentityServices(builder.Configuration);
 
 builder.Services.AddControllers();
+
+
+builder.Services.AddHealthChecks()
+    .AddSqlServer(builder.Configuration.GetConnectionString("HrDatabaseConnectionString"));
+builder.Services.AddHealthChecksUI().AddInMemoryStorage();
+
 
 // Add this cors config for avoid API see external services and clients requests as an intrusion 
 builder.Services.AddCors(options =>
@@ -30,6 +41,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 var app = builder.Build();
+
 
 // Add Exception Middleware
 app.UseMiddleware<ExceptionMiddleware>();
@@ -50,8 +62,18 @@ app.UseHttpsRedirection();
 
 app.UseCors("all");
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Adding Healthcheck routes
+app.MapHealthChecks("/health", new HealthCheckOptions
+{
+    Predicate = _ => true,
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+});
+app.MapHealthChecksUI();
+
 
 app.Run();
